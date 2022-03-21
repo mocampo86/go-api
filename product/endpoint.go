@@ -37,7 +37,7 @@ func makeInsertProductEndpoint(s Service) endpoint.Endpoint {
 
 func makeGetAllProductsEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		resp, serr := s.FindAll(ctx)
+		resp, serr := s.GetAll(ctx)
 		if serr != nil {
 			return nil, err
 		}
@@ -48,7 +48,7 @@ func makeGetAllProductsEndpoint(s Service) endpoint.Endpoint {
 func makeSearchProductEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(ProductFilterRequest)
-		resp, serr := s.Search(ctx, req)
+		resp, serr := s.Find(ctx, req)
 		if serr != nil {
 			return nil, err
 		}

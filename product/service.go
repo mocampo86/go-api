@@ -6,11 +6,11 @@ import (
 
 //Service provides some date capabilities to our application
 type Service interface {
-	Remove(ctx context.Context, id int64) error
-	Search(ctx context.Context, filter ProductFilterRequest) (products []Product, err error)
-	FindAll(ctx context.Context) (products []Product, err error)
-	Update(ctx context.Context, product Product) error
+	GetAll(ctx context.Context) (products []Product, err error)
+	Find(ctx context.Context, filter ProductFilterRequest) (products []Product, err error)
 	Insert(ctx context.Context, product Product) error
+	Update(ctx context.Context, product Product) error
+	Remove(ctx context.Context, id int64) error
 }
 
 type service struct {
@@ -24,12 +24,22 @@ func NewService(r Repository) Service {
 	}
 }
 
-func (s service) Remove(ctx context.Context, id int64) error {
-	return s.repository.Remove(ctx, id)
+func (s service) GetAll(ctx context.Context) (products []Product, err error) {
+	resp, err := s.repository.GetAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	result := []Product{}
+	for _, product := range resp {
+		result = append(result, product.ToModel())
+	}
+
+	return result, nil
 }
 
-func (s service) Search(ctx context.Context, filter ProductFilterRequest) (products []Product, err error) {
-	resp, err := s.repository.Search(ctx, filter)
+func (s service) Find(ctx context.Context, filter ProductFilterRequest) (products []Product, err error) {
+	resp, err := s.repository.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
@@ -41,24 +51,14 @@ func (s service) Search(ctx context.Context, filter ProductFilterRequest) (produ
 	return result, nil
 }
 
-func (s service) FindAll(ctx context.Context) (products []Product, err error) {
-	resp, err := s.repository.FindAll(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	result := []Product{}
-	for _, product := range resp {
-		result = append(result, product.ToModel())
-	}
-
-	return result, nil
+func (s service) Insert(ctx context.Context, product Product) error {
+	return s.repository.Insert(ctx, product.ToDAO())
 }
 
 func (s service) Update(ctx context.Context, product Product) error {
 	return s.repository.Update(ctx, product.ToDAO())
 }
 
-func (s service) Insert(ctx context.Context, product Product) error {
-	return s.repository.Insert(ctx, product.ToDAO())
+func (s service) Remove(ctx context.Context, id int64) error {
+	return s.repository.Remove(ctx, id)
 }

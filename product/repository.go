@@ -14,9 +14,9 @@ type Repository interface {
 	// Remove a product by ID from database.
 	Remove(ctx context.Context, id int64) error
 	// Find retrieves a product from database based on a product's id
-	Search(ctx context.Context, filter ProductFilterRequest) (products []DAOProduct, err error)
-	// FindAll retrieves all product from database as an array of product
-	FindAll(ctx context.Context) (products []DAOProduct, err error)
+	Find(ctx context.Context, filter ProductFilterRequest) (products []DAOProduct, err error)
+	// GetAll retrieves all product from database as an array of product
+	GetAll(ctx context.Context) (products []DAOProduct, err error)
 	// Update changes product information on the Product.Id passed in.
 	Update(ctx context.Context, product DAOProduct) error
 	// Insert a product to a database. Return an error
@@ -43,7 +43,7 @@ func (r repository) Remove(ctx context.Context, id int64) error {
 }
 
 //This func is not used any more. Search encapsulates Find by Id and Find by Name
-func (r repository) Find(ctx context.Context, id int64) (product DAOProduct, err error) {
+func (r repository) Find_Obsolete(ctx context.Context, id int64) (product DAOProduct, err error) {
 	query := "SELECT ProductId,Name,Description,Price,SKU FROM Products WHERE ProductId = ?"
 	rows, err := r.db.QueryContext(ctx, query, id)
 	if err != nil {
@@ -67,7 +67,7 @@ func (r repository) Find(ctx context.Context, id int64) (product DAOProduct, err
 	return result[0], nil
 }
 
-func (r repository) Search(ctx context.Context, filter ProductFilterRequest) (products []DAOProduct, err error) {
+func (r repository) Find(ctx context.Context, filter ProductFilterRequest) (products []DAOProduct, err error) {
 	log.Println("Filters: Id: " + strconv.FormatInt(filter.ProductId, 10) + " Name: " + filter.ProductName)
 	query := "SELECT ProductId,Name,Description,Price,SKU FROM Products WHERE 1=1"
 
@@ -88,7 +88,7 @@ func (r repository) Search(ctx context.Context, filter ProductFilterRequest) (pr
 	return scanProductRows(rows)
 }
 
-func (r repository) FindAll(ctx context.Context) (products []DAOProduct, err error) {
+func (r repository) GetAll(ctx context.Context) (products []DAOProduct, err error) {
 	query := "SELECT ProductId,Name,Description,Price,SKU FROM Products"
 	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
