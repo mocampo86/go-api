@@ -2,20 +2,25 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
-	"golang-ms-example/config"
 	"golang-ms-example/product"
 	"net/http"
 
 	_ "github.com/denisenkom/go-mssqldb"
+	"github.com/jinzhu/gorm"
 )
 
 func main() {
 	ctx := context.Background()
 
-	//Repository
-	db, err := sql.Open("mssql", config.Values.DB.ConnectionString())
+	//SQL Repository
+	//db, err := sql.Open("mssql", config.Values.DB.ConnectionString())
+	//repository := product.NewSQLRepository(db)
+
+	//GORM Repository
+	db, err := gorm.Open("sqlite3", "./gorm.db")
+	repository := product.NewGormRepository(db)
+	db.AutoMigrate(&product.DAOProduct{})
 
 	if err != nil {
 		fmt.Println("No hay db...")
@@ -24,7 +29,6 @@ func main() {
 		fmt.Println("Conexion con DB con exito")
 	}
 
-	repository := product.NewRepository(db)
 	service := product.NewService(repository)
 	endpoints := product.MakeEndpoints(service)
 
